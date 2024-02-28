@@ -1,0 +1,6 @@
+## Interface: 30300
+## Version: 1.0.0
+## Title: GetSkillCardInfo
+## Author: B站@devzero / github.com/jerryshell
+
+GetSkillCardInfo.lua
