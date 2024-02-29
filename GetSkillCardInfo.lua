@@ -1,32 +1,43 @@
-local function GetCollectedSpellIDs()
+function GetCollectedSpellIDs()
     local result = {}
-    local maxIndex = SkillCardsFrame.ScrollListNormal:GetNumResults()
+    SkillCardsFrameTab3:Click()
+    SkillCardsFrame:ClearFilters()
+    local maxIndex = C_SkillCardCollection.GetNumSkillCards(Enum.SkillCardType.SkillNormal)
     for index = 1, maxIndex do
-        if SkillCardsFrame.ScrollListNormal:GetItemData(index).IsCollected then
-            table.insert(result, SkillCardsFrame.ScrollListNormal:GetItemData(index).SpellID)
+        local data = C_SkillCardCollection.GetSkillCardAtIndex(Enum.SkillCardType.SkillNormal, index)
+        if data.IsCollected then
+            table.insert(result, data.SpellID)
         end
     end
-    local maxIndex = SkillCardsFrame.ScrollListGolden:GetNumResults()
+    local maxIndex = C_SkillCardCollection.GetNumSkillCards(Enum.SkillCardType.SkillGolden)
     for index = 1, maxIndex do
-        if SkillCardsFrame.ScrollListGolden:GetItemData(index).IsCollected then
-            table.insert(result, SkillCardsFrame.ScrollListGolden:GetItemData(index).SpellID)
+        local data = C_SkillCardCollection.GetSkillCardAtIndex(Enum.SkillCardType.SkillGolden, index)
+        if data.IsCollected then
+            table.insert(result, data.SpellID)
+        end
+    end
+    local maxIndex = C_SkillCardCollection.GetNumSkillCards(Enum.SkillCardType.TalentNormal)
+    for index = 1, maxIndex do
+        local data = C_SkillCardCollection.GetSkillCardAtIndex(Enum.SkillCardType.TalentNormal, index)
+        if data.IsCollected then
+            table.insert(result, data.SpellID)
+        end
+    end
+    local maxIndex = C_SkillCardCollection.GetNumSkillCards(Enum.SkillCardType.TalentGolden)
+    for index = 1, maxIndex do
+        local data = C_SkillCardCollection.GetSkillCardAtIndex(Enum.SkillCardType.TalentGolden, index)
+        if data.IsCollected then
+            table.insert(result, data.SpellID)
         end
     end
     return result
 end
 
-function SetInfo()
-    local collectedSpellIDs = GetCollectedSpellIDs()
-    local output = table.concat(collectedSpellIDs, ",")
-    InfoButton:SetText(output)
-end
+local MainFrame = CreateFrame("Frame", "GetSkillCardInfoFrame", UIParent, "SimplePanelTemplate")
 
-local MainFrame = CreateFrame("Frame", "GetSkillCardInfoFrame", UIParent)
-
-MainFrame:SetPoint("TOPLEFT", 205, -45)
+MainFrame:SetPoint("TOPLEFT", 200, -45)
 MainFrame:SetFrameStrata("MEDIUM")
-MainFrame:SetSize(220, 150)
-
+MainFrame:SetSize(380, 330)
 MainFrame:SetClampedToScreen(true)
 MainFrame:SetMovable(true)
 MainFrame:EnableMouse(true)
@@ -36,41 +47,34 @@ MainFrame:SetScript("OnHide", MainFrame.StopMovingOrSizing)
 MainFrame:SetScript("OnDragStop", MainFrame.StopMovingOrSizing)
 MainFrame:Show()
 
-MainFrame.BG = MainFrame:CreateTexture()
-MainFrame.BG:SetAllPoints()
-MainFrame.BG:SetTexture(0.1, 0.1, 0.1, 1)
+local fs = MainFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+fs:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 8, -10)
+fs:SetText("S9 赛季 BD 助手 - Bilibili@devzero")
 
-local button = CreateFrame("Button", "Frame", MainFrame, "UIPanelButtonTemplate")
-button:SetSize(200, 30)
-button:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 8, -28);
+local button = CreateFrame("Button", nil, MainFrame, "UIPanelButtonTemplate")
+button:SetSize(100, 30)
+button:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 8, -28)
 button:SetText("获取技能卡信息")
 button:Show()
 button:SetScript("OnClick", function()
     local collectedSpellIDs = GetCollectedSpellIDs()
-    local output = ""
-    for _, spellID in ipairs(collectedSpellIDs) do
-        if output ~= "" then
-            output = output .. ","
-        end
-        output = output .. spellID
-    end
-    InfoButton:SetText(output)
+    local output = table.concat(collectedSpellIDs, ",")
+    SkillCardInfoBox:SetText(output)
 end)
 local preWidget = button
 
-local editBox = CreateFrame("EditBox", "Frame", MainFrame, "InputBoxTemplate")
-editBox:SetSize(200, 30)
-editBox:SetPoint("TOPLEFT", preWidget, "BOTTOMLEFT", 0, -3)
-editBox:SetText("请点击 获取技能卡信息 按钮")
-editBox:Show()
-if editBox:IsAutoFocus() then
-    editBox:SetAutoFocus(false)
-end
-local preWidget = editBox
-InfoButton = editBox
+local scrollFrame = CreateFrame("ScrollFrame", nil, MainFrame, "ScrollableMultiLineInputBoxInstructionsTemplate")
+scrollFrame:SetSize(340, 200)
+scrollFrame:SetPoint("TOPLEFT", preWidget, "BOTTOMLEFT", 0, -3)
+SkillCardInfoBox = scrollFrame:GetScrollChild()
+SkillCardInfoBox:SetText(
+    "使用方法说明：\n1. 点击 [获取技能卡信息] 按钮\n2. 复制技能卡信息，粘贴到网站中即可\nCtrl + A 全选\nCtrl + C 复制\n使用 /getskillcardinfo 命令可以重新打开窗口"
+)
 
-local closeButton = CreateFrame("Button", "Frame", MainFrame, "UIPanelButtonTemplate")
-closeButton:SetSize(200, 30)
+local preWidget = scrollFrame
+
+local closeButton = CreateFrame("Button", nil, MainFrame, "UIPanelButtonTemplate")
+closeButton:SetSize(100, 30)
 closeButton:SetPoint("TOPLEFT", preWidget, "BOTTOMLEFT", 0, -3)
 closeButton:SetText("关闭窗口")
 closeButton:Show()
